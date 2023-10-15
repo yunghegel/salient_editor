@@ -104,10 +104,11 @@ class ProjectInspector :STable(), ProjectLoadedEvent.Listener, DialogChangedEven
 
         treeContainer.add(fileChooser.treePane).growY().padLeft(0f).padRight(0f).fill().row()
         val pane = VisSplitPane(treeContainer, listContainer, false)
+        pane.setSplitAmount(0.3f)
         val Separator = Separator()
         val projWindow = Window("Explorer", UI.getSkin())
         add(pathTable).growX().padBottom(5f).padTop(5f).padLeft(4f).padRight(4f).row()
-       fileChooserTable.add(pane).pad(0f).grow().fillY().height(300f).row()
+       fileChooserTable.add(pane).pad(0f).grow().fillY().row()
         add(fileChooserTable).growX().fill().row()
 
         var table = STable()
@@ -132,7 +133,6 @@ class ProjectInspector :STable(), ProjectLoadedEvent.Listener, DialogChangedEven
             titleButtons.align(Align.center)
         listContainer.add(titleButtons).growX().fillX().height(25f).row()
 
-        add(DialogContainer).growX().row()
         add(Separator).colspan(2).growX().row()
 
     }

@@ -5,6 +5,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -13,6 +14,7 @@ import com.badlogic.gdx.utils.Align;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
 import com.kotcrab.vis.ui.util.dialog.InputDialogListener;
 import com.kotcrab.vis.ui.widget.*;
+import events.proj.ProjectInitializedEvent;
 import games.spooky.gdx.nativefilechooser.NativeFileChooserCallback;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
@@ -27,13 +29,13 @@ import events.scene.SceneSelectionEvent;
 
 import java.util.Objects;
 
-public class SMenuBar extends MenuBar implements ProjectLoadedEvent.Listener, ProjectChangedEvent.Listener, SceneLoadedEvent.Listener, SceneSelectionEvent.Listener {
+public class SMenuBar extends MenuBar implements ProjectLoadedEvent.Listener, ProjectChangedEvent.Listener, SceneLoadedEvent.Listener, SceneSelectionEvent.Listener, ProjectInitializedEvent.Listener {
 
     Menu files, edit, view, help;
     SMenuItem newProject, openProject, saveProject, recentProjects, exit;
-
+    public Table projectInfo;
     public SMenuBar() {
-
+        super("no-bg");
         init();
         createWindowControls();
         createFileMenu();
@@ -45,7 +47,8 @@ public class SMenuBar extends MenuBar implements ProjectLoadedEvent.Listener, Pr
     SLabel sceneName;
 
     Skin skin;
-
+    Table items;
+    Cell<Actor> itemsCell;
     private void init() {
 
         files = new Menu("File");
@@ -59,8 +62,11 @@ public class SMenuBar extends MenuBar implements ProjectLoadedEvent.Listener, Pr
         help.setSkin(skin);
 
 
-        Table items = (Table) getTable().getChild(0);
+        items = (Table) getTable().getChild(0);
         items.pad(0);
+
+
+
         var logo = new Logo();
 //        items.add(logo).pad(3,0,3,5).padLeft(5).padRight(5).align(Align.left);
 
@@ -71,20 +77,45 @@ public class SMenuBar extends MenuBar implements ProjectLoadedEvent.Listener, Pr
         addMenu(help);
 
 
-        Table projectInfo = new Table();
+        projectInfo = new Table();
         projectName = new SLabel("Project: ","default-gray");
         sceneName = new SLabel("Scene: ","default-gray");
         projectInfo.add(projectName).padRight(5);
         projectInfo.add(sceneName).padRight(5);
 
-        getTable().add(projectInfo).padLeft(30);
+        getTable().add(projectInfo).padLeft(30).growX();
 
-        projectInfo.align(Align.center);
+        projectInfo.align(Align.left);
 
-
-
+        itemsCell = getTable().getCell(projectInfo);
 
     }
+
+    public void setItemsCellWidth(float width){
+        float amount = width - computeWidth();
+        itemsCell = projectInfo.getCell(projectInfo.getChildren().get(0));
+        itemsCell.width(itemsCell.getActorWidth()+amount);
+    }
+
+    public int computeWidth(){
+        int width = 0;
+        var children = items.getChildren().toArray();
+        for (int i = 0; i < children.length; i++) {
+            width += (int) children[i].getWidth();
+        }
+
+
+        width += (int) projectInfo.getChildren().get(0).getWidth();
+
+
+
+
+
+        return width;
+
+    }
+
+
 
     private void createWindowControls(){
         STable windowControls = new STable();
@@ -188,7 +219,29 @@ public class SMenuBar extends MenuBar implements ProjectLoadedEvent.Listener, Pr
 
     @Override
     public void onProjectLoaded(@NotNull ProjectLoadedEvent event) {
-        System.out.println("Project loaded: " + event.getProject().getName());
+
+
+
+    }
+
+    @Override
+    public void onProjectChanged(@NotNull ProjectChangedEvent event) {
+
+    }
+
+    @Override
+    public void onSceneLoaded(@NotNull SceneLoadedEvent event) {
+        sceneName.setText(' '+ Objects.requireNonNull(event.getScene()).getName());
+    }
+
+    @Override
+    public void onSceneSelection(@NotNull SceneSelectionEvent event) {
+        sceneName.setText(' '+ Objects.requireNonNull(event.getScene()).getName());
+
+    }
+
+    @Override
+    public void onInitialized(@NotNull ProjectInitializedEvent event) {
         val recentProjectsMenu = new PopupMenu();
 
         for (val project : Salient.INSTANCE.getProjectManager().getRecentProjects()) {
@@ -204,23 +257,5 @@ public class SMenuBar extends MenuBar implements ProjectLoadedEvent.Listener, Pr
         recentProjects.setSubMenu(recentProjectsMenu);
 
         projectName.setText('['+event.getProject().getName()+']');
-
-
-    }
-
-    @Override
-    public void onProjectChanged(@NotNull ProjectChangedEvent event) {
-
-    }
-
-    @Override
-    public void onSceneLoaded(@NotNull SceneLoadedEvent event) {
-        sceneName.setText(' '+ Objects.requireNonNull(event.getScene()).name);
-    }
-
-    @Override
-    public void onSceneSelection(@NotNull SceneSelectionEvent event) {
-        sceneName.setText(' '+ Objects.requireNonNull(event.getScene()).name);
-
     }
 }

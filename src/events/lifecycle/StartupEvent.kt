@@ -1,11 +1,11 @@
 package events.lifecycle
 
-import events.*
+import events.LifecycleEvent
+import events.Subscribe
 
-class StartupEvent  : Event() {
+class StartupEvent : LifecycleEvent() {
 
     interface Listener {
-
         @Subscribe
         fun  onStartup(event: StartupEvent)
     }

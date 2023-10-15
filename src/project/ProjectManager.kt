@@ -1,21 +1,34 @@
 package project
 
+import app.App.log
+import app.App.perf
 import app.Salient
+import assets.AssetManager
+import assets.types.ModelAsset
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.g3d.Model
+import events.assets.AssetFinalizedEvent
+import events.assets.AssetLoadingFinishedEvent
 import events.natives.WindowFocusEvent
-import sys.Log
 import events.proj.ProjectCreatedEvent
+import events.proj.ProjectInitializedEvent
 import events.proj.ProjectLoadedEvent
 import io.DirectoryMappings
 import io.FileService
 import io.Serializer
 import scene.SceneManager
+import scene.graph.ModelImporter
+import sys.Log
 import sys.profiling.Profile
+import util.isGLTF
 
-class ProjectManager
+class ProjectManager() : AssetLoadingFinishedEvent.Listener,ProjectLoadedEvent.Listener,ProjectInitializedEvent.Listener,AssetFinalizedEvent.Listener
 {
     lateinit var currentProject: Project
 
     lateinit var sceneManager: SceneManager
+
+    lateinit var assetManager: AssetManager
 
      lateinit var tmpData: TmpData
 
@@ -29,33 +42,33 @@ class ProjectManager
 
     @Profile
     fun initialize(name: String){
-        currentProject = load(name)
 
-        sceneManager = SceneManager(currentProject)
-
-
+        Salient.registerListener(this)
         Log.info("Initializing project $name")
-        FileService.listScenes(name).forEach {
-            if (currentProject.scenes.find { scene -> scene.name == it.substringBefore('.') } == null) {
-                currentProject.scenes.add(Serializer.deserializeScene(name, it.substringBefore('.'), currentProject))
-            }
 
-        }
-        if(currentProject.scenes.isEmpty()) {
-            Log.info("No scenes found, creating default scene")
-            sceneManager.initDefaultScene()
-        }
-        currentProject.loadScene(currentProject.scenes[0])
-        if(currentProject.currentScene == null){
-            Log.info("No scene loaded, loading first scene")
-            currentProject.loadScene(currentProject.scenes[0])
-        }
-        Log.info("Retreived scene ${currentProject.currentScene!!.name} from project ${currentProject.name}")
+        loadAndSet(name)
+        assetManager = AssetManager(currentProject)
+        sceneManager = SceneManager(currentProject)
+        sceneManager.initalize()
 
+        assetManager.initialize()
         tmpData = Serializer.deserializeTmpData()
 
-        Salient.postEvent(ProjectLoadedEvent(currentProject))
-        Salient.registerListener(listener)
+
+
+
+
+        Log.info("Retreived scene ${sceneManager.currentScene.name} from project ${currentProject.name}")
+        Salient.postEvent(ProjectInitializedEvent(currentProject))
+
+
+
+
+
+    }
+
+    fun parseTmpInfo(tmp: TmpData) {
+
     }
 
     @Profile
@@ -67,13 +80,20 @@ class ProjectManager
 
     @Profile
     fun load(name:String): Project {
-        Log.info("Loading project $name")
+        perf("ProjectManager.load") {
+            Log.info("Loading project $name")
+        }
+
+        perf("ProjectManager") {
+            Thread.sleep(100)
+            log { "hello" }
+        }
+
 
         if(FileService.fileExists(DirectoryMappings.getProjectPath(name))) {
             Log.info("Project $name exists, retrieving from disk")
             var project = Serializer.deserializeProject(name)
             Salient.postEvent(ProjectLoadedEvent(project))
-
             return project
         }
         else{
@@ -82,13 +102,19 @@ class ProjectManager
             Salient.postEvent(ProjectLoadedEvent(project))
             return project
         }
+    }
 
+    fun set(project: Project){
+        currentProject = project
+    }
+
+    fun loadAndSet(name:String){
+        set(load(name))
     }
 
     @Profile
     fun create(name:String): Project {
         var project = Project(name, DirectoryMappings.getProjectPath(name), Serializer.generateUID())
-        project.setup()
         FileService.createAssetFolders(name)
         Serializer.serializeProject(project)
         TmpData.appendRecentProject(name)
@@ -100,10 +126,42 @@ class ProjectManager
 
 
 
-    object listener: ProjectLoadedEvent.Listener {
+
         override fun onProjectLoaded(event: ProjectLoadedEvent) {
-            Salient.projectManager.tmpData = Serializer.deserializeTmpData()
+
         }
+
+
+    override fun onAssetLoadingFinished(event: AssetLoadingFinishedEvent) {
+
+    }
+
+    override fun onInitialized(event: ProjectInitializedEvent) {
+        Salient.ui.createSceneHierarchy()
+        Salient.ui.viewportWidget.setRenderer(sceneManager.currentScene.getRenderer())
+        Salient.projectManager.tmpData = Serializer.deserializeTmpData()
+
+        Salient.ui.sceneInspector.sceneHierarchy.refresh()
+
+
+    }
+
+    override fun onAssetFinalized(event: AssetFinalizedEvent) {
+        val asset = event.asset
+        assetManager.registry.assets.add(asset)
+        if(Gdx.files.isGLTF(asset.meta.properties.path)){
+
+
+            val modelAsset = asset as ModelAsset
+            val model = modelAsset.obj as Model
+            val go = ModelImporter(model, modelAsset, sceneManager.currentScene.sceneGraph,assetManager).buildGo()
+            sceneManager.currentScene.sceneGraph.addGameObject(go)
+        }
+        if(Salient.ui.sceneInspector==null) {
+            return
+        }
+        Salient.ui.sceneInspector.sceneHierarchy.refresh()
+
     }
 
 }

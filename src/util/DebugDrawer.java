@@ -4,14 +4,19 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Frustum;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import net.mgsx.gltf.scene3d.lights.SpotLightEx;
 import app.Salient;
 
 public class DebugDrawer {
     public ShapeRenderer renderer = Salient.INSTANCE.getShapeRenderer();
+    public BitmapFont font = Salient.INSTANCE.getFont();
+    public SpriteBatch batch = Salient.INSTANCE.getSpriteBatch();
     private static Camera camera;
     private static Color color = Color.BLACK;
 
@@ -231,9 +236,11 @@ public class DebugDrawer {
 
         //line from position to direction scaled by height
         Vector3 discCenter = new Vector3(direction).nor().scl(height).add(position);
+    }
 
-
-
-
+    public void keyValue(Vector2 pos, String key, String value,BitmapFont font){
+        batch.begin();
+        font.draw(batch, key + ":"+value, pos.x, pos.y);
+        batch.end();
     }
 }

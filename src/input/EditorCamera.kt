@@ -15,6 +15,7 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.Ray
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import app.Salient
+import app.Salient.font
 import util.Vector3Data
 
 class EditorCamera(var perspectiveCamera: PerspectiveCamera,var orthographicCamera: OrthographicCamera,var viewport:ScreenViewport) {
@@ -25,14 +26,14 @@ class EditorCamera(var perspectiveCamera: PerspectiveCamera,var orthographicCame
     init {
         orthographicCamera.position.set(10f, 10f, 0f)
         orthographicCamera.lookAt(0f, 0f, 0f)
-        orthographicCamera.near = 0.1f
-        orthographicCamera.far = 300f
+        orthographicCamera.near = 10f
+        orthographicCamera.far = 150f
         orthographicCamera.update()
 
         perspectiveCamera.position.set(1f, 1f, 1f)
         perspectiveCamera.lookAt(0f, 0f, 0f)
-        perspectiveCamera.near = 0.1f
-        perspectiveCamera.far = 300f
+        perspectiveCamera.near = 1f
+        perspectiveCamera.far = 100f
         perspectiveCamera.update()
 
     }
@@ -190,7 +191,7 @@ class EditorCamera(var perspectiveCamera: PerspectiveCamera,var orthographicCame
         fun render(){
 
             var intersection = Vector3()
-            Intersector.intersectRayPlane(Salient.ui.viewportWidget.viewport.getPickRay(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()), Plane(Vector3.Y, 0f), intersection)
+//            Intersector.intersectRayPlane(Salient.ui.viewportWidget.viewport.getPickRay(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()), Plane(Vector3.Y, 0f), intersection)
 
            with(Salient.shapeRenderer){
                projectionMatrix = camera.combined
@@ -203,6 +204,9 @@ class EditorCamera(var perspectiveCamera: PerspectiveCamera,var orthographicCame
                 line(target, target.cpy().add(Vector3.Z.cpy().scl(0.1f)))
                 end()
            }
+
+
+
         }
 
 

@@ -56,6 +56,16 @@ object ClassScanner {
         return params
     }
 
+    fun classImplementsInterface(clazz: Class<*>, interfaceClass: Class<*>): Boolean {
+        val interfaces = clazz.interfaces
+        for (i in interfaces) {
+            if (i == interfaceClass) {
+                return true
+            }
+        }
+        return false
+    }
+
 }
 
 class MethodDescriptor

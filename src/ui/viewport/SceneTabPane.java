@@ -30,25 +30,30 @@ public class SceneTabPane extends STable implements SceneLoadedEvent.Listener, S
     STable addButtonContainer = new STable();
     public SceneTabPane(ViewportPanel viewportPanel) {
         super();
-        pad(1);
-        align(Align.left);
+
+        align(Align.bottom);
         this.viewportPanel = viewportPanel;
         tabs.space(3);
+        tabs.fill();
+        tabs.align(Align.bottom);
+        tabs.setWidth(1000);
         buttonGroup.setMaxCheckCount(1);
         buttonGroup.setMinCheckCount(1);
         buttonGroup.setUncheckLast(true);
         VisTable container = new VisTable();
-        container.add(tabs);
+        container.add(tabs).fillX().growX().padLeft(5f);
 
 
         addButtonContainer.add(addTabButton).width(20).height(20).padLeft(5);
 
-        container.add(addButtonContainer).width(20).height(20);
-
-        container.align(Align.left);
-        container.setColor(0.2f,0.2f,0.1f,1);
-        add(container).left().growX().row();
+        container.add(addButtonContainer).width(20).height(20).bottom();
         Separator seperator = new Separator();
+
+        container.add(seperator).growX().height(2);
+
+        container.align(Align.bottom);
+        container.setColor(0.2f,0.2f,0.1f,1);
+        add(container).bottom();
 //        add(seperator).growX().row();
 //        add(viewportPanel).grow().
         left();
@@ -61,10 +66,7 @@ public class SceneTabPane extends STable implements SceneLoadedEvent.Listener, S
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 var scene =Salient.INSTANCE.getProjectManager().sceneManager.initDefaultScene();
-                Salient.INSTANCE.getEventBus().post(new SceneCreatedEvent(scene));
-                Salient.INSTANCE.getProjectManager().currentProject.loadScene(scene);
-
-
+                addTab(scene);
                 return super.touchDown(event, x, y, pointer, button);
             }
         });
@@ -89,7 +91,7 @@ public class SceneTabPane extends STable implements SceneLoadedEvent.Listener, S
         tab.tabButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Salient.INSTANCE.getProjectManager().currentProject.setScene(scene);
+                Salient.INSTANCE.getProjectManager().sceneManager.setScene(scene);
 
             }
         });
@@ -114,8 +116,8 @@ public class SceneTabPane extends STable implements SceneLoadedEvent.Listener, S
 
     @Override
     public void onSceneLoaded(@NotNull SceneLoadedEvent event) {
-        addTab(event.getScene());
         viewportPanel.viewportWidget.setRenderer(event.getScene());
+        addTab(event.getScene());
     }
 
 

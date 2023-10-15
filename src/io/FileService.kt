@@ -2,6 +2,7 @@ package io
 
 import com.badlogic.gdx.files.FileHandle
 import kotlinx.serialization.json.Json
+import sys.Log
 import java.io.File
 
 object FileService {
@@ -74,6 +75,54 @@ object FileService {
         createDirectoryIfNotExists(DirectoryMappings.getAssetsPath(projectName) +"/models")
         createDirectoryIfNotExists(DirectoryMappings.getAssetsPath(projectName) +"/textures")
         createDirectoryIfNotExists(DirectoryMappings.getAssetsPath(projectName) +"/shaders")
+        createDirectoryIfNotExists(DirectoryMappings.getAssetsPath(projectName) +"/sounds")
+        createDirectoryIfNotExists(DirectoryMappings.getAssetsPath(projectName) +"/fonts")
+        createDirectoryIfNotExists(DirectoryMappings.getAssetsPath(projectName) +"/other")
+    }
+
+    object Operations {
+
+        fun copy(source: FileHandle, destination: FileHandle) {
+            if (source.isDirectory) {
+                copyDirectory(source, destination)
+            }
+            else {
+                Log.info("copying ${source.name()} to ${destination.path()}")
+                source.copyTo(destination)
+            }
+        }
+
+        fun copyDirectory(source: FileHandle, destination: FileHandle) {
+            if (!source.isDirectory) {
+                throw IllegalArgumentException("Source ($source) must be a directory.")
+            }
+            if (!destination.exists()) {
+                destination.mkdirs()
+            }
+            if (!destination.isDirectory) {
+                throw IllegalArgumentException("Destination ($destination) must be a directory.")
+            }
+            for (child in source.list()) {
+                val childDestination = destination.child(child.name())
+                if (child.isDirectory) {
+                    copyDirectory(child, childDestination)
+                } else {
+                    child.copyTo(childDestination)
+                }
+            }
+        }
+
+        fun move(source: FileHandle, destination: FileHandle) {
+            source.moveTo(destination)
+        }
+
+        fun delete(file: FileHandle) {
+            file.delete()
+        }
+
+        fun rename(file: FileHandle, newName: String) {
+            file.file().renameTo(File(file.parent().path() + "/" + newName))
+        }
     }
 
 }

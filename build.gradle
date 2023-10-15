@@ -44,6 +44,25 @@ dependencies {
     implementation 'com.google.guava:guava:31.1-jre'
     implementation 'org.javassist:javassist:3.29.2-GA'
     implementation "io.github.libktx:ktx-inject:$ktxVersion"
+    implementation 'io.github.libktx:ktx-collections:1.12.0-rc1'
+    implementation 'io.github.libktx:ktx-graphics:1.12.0-rc1'
+    implementation 'io.github.libktx:ktx-script:1.12.0-rc1'
+    implementation 'io.github.libktx:ktx-scene2d:1.12.0-rc1'
+    implementation 'io.github.libktx:ktx-ashley:1.12.0-rc1'
+    implementation 'io.github.libktx:ktx-app:1.12.0-rc1'
+    implementation 'io.github.libktx:ktx-assets:1.12.0-rc1'
+    implementation 'io.github.libktx:ktx-async:1.12.0-rc1'
+    implementation 'io.github.libktx:ktx-json:1.12.0-rc1'
+    implementation 'io.github.libktx:ktx-math:1.12.0-rc1'
+    implementation 'io.github.libktx:ktx-style:1.12.0-rc1'
+    implementation 'io.github.libktx:ktx-vis:1.12.0-rc1'
+    implementation 'io.github.libktx:ktx-actors:1.12.0-rc1'
+    implementation 'io.github.libktx:ktx-vis:1.12.0-rc1'
+    implementation 'io.github.libktx:ktx-assets-async:1.12.0-rc1'
+    implementation 'com.github.czyzby:gdx-kiwi:1.9.1.9.6'
+    implementation('io.reactivex.rxjava3:rxkotlin:3.0.1')
+    implementation 'com.crashinvaders.vfx:gdx-vfx-core:0.5.1'
+    implementation 'com.crashinvaders.vfx:gdx-vfx-effects:0.5.1'
 }
 
 

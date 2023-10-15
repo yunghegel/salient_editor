@@ -10,7 +10,6 @@ import org.yunghegel.gdx.ui.widgets.viewport.events.ViewportEvent;
 import org.yunghegel.gdx.ui.widgets.viewport.events.ViewportEventListener;
 import org.yunghegel.gdx.utils.graphics.ScreenUtil;
 import app.Salient;
-import scene.Scene;
 
 public class ScenePreview extends ViewportPanel {
 
@@ -44,17 +43,17 @@ public class ScenePreview extends ViewportPanel {
 
             @Override
             public boolean stageViewportApplied(ViewportEvent event) {
-                Scene.compassGizmo.render(Salient.INSTANCE.getModelBatch());
+                Salient.INSTANCE.getCompass().render(Salient.INSTANCE.getModelBatch());
                 return super.stageViewportApplied(event);
             }
             @Override
             public boolean layout(ViewportEvent event, float width, float height, float x, float y) {
-                if (Scene.compassGizmo == null) return false;
+                if (Salient.INSTANCE.getCompass()== null) return false;
 
                 BoundingBox box = new BoundingBox();
-                Scene.compassGizmo.compass.calculateBoundingBox(box);
+                Salient.INSTANCE.getCompass().compass.calculateBoundingBox(box);
                 Vector2 pos= ScreenUtil.toOpenGLCoords(width + MathUtils.round(x)+viewportWidget.viewport.getScreenWidth(), height+ MathUtils.round(Gdx.graphics.getHeight() - y)+viewportWidget.viewport.getScreenHeight());
-                Scene.compassGizmo.setPosition(pos.x-box.getWidth()-0.01f,pos.y-box.getHeight()-0.01f);
+                Salient.INSTANCE.getCompass().setPosition(pos.x-box.getWidth()-0.01f,pos.y-box.getHeight()-0.01f);
                 return super.layout(event, width, height, x, y);
             }
         };
@@ -65,12 +64,12 @@ public class ScenePreview extends ViewportPanel {
 
     @Override
     public void act(float delta) {
-        if(!viewportWidget.isInsideWidget(Gdx.input.getX(),Gdx.graphics.getHeight()- Gdx.input.getY())) {
-            Salient.INSTANCE.getInputManager().setProcessor(Salient.INSTANCE.getUi().getStage());
-        } else {
-            Salient.INSTANCE.getInputManager().setProcessor(Salient.INSTANCE.getCameraController().getPerspectiveCameraController());
-
-        }
+//        if(!viewportWidget.isInsideWidget(Gdx.input.getX(),Gdx.graphics.getHeight()- Gdx.input.getY())) {
+//            Salient.INSTANCE.getInputManager().setProcessor(Salient.INSTANCE.getUi().getStage());
+//        } else {
+//            Salient.INSTANCE.getInputManager().setProcessor(Salient.INSTANCE.getCameraController().getPerspectiveCameraController());
+//
+//        }
     }
 
 

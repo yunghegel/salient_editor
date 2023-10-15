@@ -40,5 +40,39 @@ object Format {
         return bytes / 1024
     }
 
+    fun kbToBytes(kb:Long) : Long {
+        return kb * 1024
+    }
+
+    fun Long.fmtBytes() : String {
+        return formatBytes(this)
+    }
+
+    fun formatBytes(bytes:Long) : String {
+        return when {
+            bytes < 1024 -> "${bytes}B"
+            bytes < 1024 * 1024 -> "${bytesToKb(bytes)}KB"
+            else -> "${bytesToMb(bytes)}MB"
+        }
+    }
+
+    fun String.color(color:String) : String {
+        return wrpAnsi(this, color)
+    }
+
+    fun Float.trimDecimals(decimals:Int) : Float {
+        return String.format("%.${decimals}f", this).toFloat()
+    }
+
+    fun Float.ensureDecimals(decimals:Int) : String {
+
+        return String.format("%.${decimals}f", this)
+
+    }
+
+
+
+
+
 
 }

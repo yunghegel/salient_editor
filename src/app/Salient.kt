@@ -7,11 +7,11 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import events.DefaultLogger
 import events.Event
 import events.EventBus
-import events.EventLogger
 import input.EditorCamera
 import input.InputManager
 import io.DirectoryMappings
@@ -20,11 +20,12 @@ import io.Serializer
 import ktx.inject.Context
 import ktx.inject.register
 import ktx.reflect.Reflection
+import ktx.scene2d.Scene2DSkin
+import org.yunghegel.gdx.gizmo.core.utility.CompassGizmo
 import project.Project
 import project.ProjectManager
 import sys.Natives
 import sys.WindowSubscriber
-import sys.profiling.*
 import ui.Gui
 import util.DebugDrawer
 
@@ -49,6 +50,7 @@ object Salient {
     var projectManager: ProjectManager = ProjectManager()
     var windowSubscriber: WindowSubscriber = WindowSubscriber()
     var eventLogger: DefaultLogger = DefaultLogger()
+    var compass: CompassGizmo
 
 
 
@@ -64,12 +66,19 @@ init {
     cameraController = EditorCamera(camera, orthoCam, viewport)
 
     ui = Gui()
+    Scene2DSkin.defaultSkin = ui.skin
     natives = Natives()
     spriteBatch = SpriteBatch()
     shapeRenderer = ShapeRenderer()
     debugDrawer = DebugDrawer()
     font = ui.skin.getFont("default")
     inputManager = InputManager()
+    inputManager.addProcessor(ui.stage)
+    inputManager.addProcessor(cameraController.perspectiveCameraController)
+    inputManager.addProcessor(ui.viewportWidget.uiStage)
+    inputManager.set()
+
+    compass = CompassGizmo(inputManager.inputMultiplexer, modelBatch, camera, viewport,-1)
     @OptIn(Reflection::class)
     context.register {
         bindSingleton(projectManager)
@@ -86,9 +95,9 @@ init {
         bindSingleton(font)
         bindSingleton(inputManager)
         bindSingleton(eventLogger)
+        bindSingleton(depthBatch)
     }
 
-    projectManager=inject()
 
     eventBus.register(windowSubscriber)
     eventBus.register(eventLogger)
@@ -100,6 +109,14 @@ init {
 }
 
     inline fun <reified Type : Any> inject(): Type = context.inject()
+
+    inline fun keyVal(pos: Vector2, key: String, value: String) {
+        debugDrawer.keyValue(pos, key, value,font)
+    }
+
+    inline fun keyVal(x:Float,y:Float, key: String, value: String) {
+        debugDrawer.keyValue(Vector2(x,y), key, value,font)
+    }
 
     fun initializeProjectContext(){
         var projs = FileService.listProjects()

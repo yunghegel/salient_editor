@@ -12,6 +12,10 @@ class InputManager {
         Gdx.input.inputProcessor = inputMultiplexer
     }
 
+    fun set(){
+        Gdx.input.inputProcessor = inputMultiplexer
+    }
+
 
     fun addProcessor(processor: InputProcessor) {
         inputMultiplexer.addProcessor(processor)

@@ -1,10 +1,9 @@
 package events.lifecycle
 
-import events.BaseEvent
-import events.Event
+import events.LifecycleEvent
 import events.Subscribe
 
-class ShutdownEvent : Event() {
+class ShutdownEvent : LifecycleEvent() {
 
     interface Listener {
 

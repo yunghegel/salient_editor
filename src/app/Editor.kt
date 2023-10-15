@@ -1,51 +1,50 @@
 package app
 
+import assets.AssetService
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT
 import com.badlogic.gdx.graphics.GL20.GL_DEPTH_BUFFER_BIT
-import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.graphics.Pixmap
+import com.crashinvaders.vfx.VfxManager
+import com.crashinvaders.vfx.effects.FxaaEffect
+import ktx.async.KtxAsync
 import project.ProjectManager
-import util.CameraUtils
 
 
 class Editor : ApplicationAdapter() {
 
     lateinit var projectManager: ProjectManager
+    lateinit var effectsManager : VfxManager
 
     override fun create() {
         super.create()
+        KtxAsync.initiate()
         projectManager = Salient.inject()
         Salient.initializeProjectContext()
 
+        effectsManager= VfxManager(Pixmap.Format.RGBA8888)
+        effectsManager.addEffect(FxaaEffect())
+
     }
+
 
     override fun render() {
         Gdx.gl.glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
         Gdx.gl.glClearColor(0.1f,0.1f,0.1f,0f)
-        projectManager.currentProject.currentScene?.update(Gdx.graphics.deltaTime)
+        projectManager.sceneManager.currentScene?.update(Gdx.graphics.deltaTime)
+        AssetService.processQueue(Salient.projectManager.assetManager)
 
         Salient.ui.render(Gdx.graphics.deltaTime)
-        with(Salient.debugDrawer) {
-            renderer.projectionMatrix = projectManager.currentProject.currentScene!!.camera.combined
-            renderer.setAutoShapeType(true)
-            var intersection = CameraUtils.cameraRayXZPlaneIntersection(
-                projectManager.currentProject.currentScene!!.camera.position,
-                projectManager.currentProject.currentScene!!.camera.direction)
-            if (intersection != null) {
-                renderer.begin()
-                renderer.color = Color.CORAL
-                renderer.line(intersection, Vector3(intersection.x, 0f, intersection.z))
-                renderer.end()
 
-            }
-        }
+
+
+
     }
 
     override fun resize(width: Int, height: Int) {
         super.resize(width, height)
-        projectManager.currentProject.currentScene?.resize(width, height)
+        projectManager.sceneManager.currentScene?.resize(width, height)
         Salient.ui.resize(width, height)
 
     }

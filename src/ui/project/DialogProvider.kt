@@ -3,11 +3,10 @@ package ui.project
 import app.Salient
 import com.badlogic.gdx.files.FileHandle
 import events.ui.DialogChangedEvent
-import io.DirectoryMappings
 import ktx.inject.Context
 import ktx.inject.register
 import ktx.reflect.Reflection
-import ui.project.DialogProvider.state
+import sys.Log
 import ui.project.dialogs.*
 
 object DialogProvider {
@@ -32,6 +31,19 @@ object DialogProvider {
         if (old !=new) {
             println("Dialog changed from $old to $new")
             Salient.postEvent(DialogChangedEvent(new))
+            when (new){
+                DialogType.EMPTY -> DialogContainer.swapDialog(DialogContainer)
+                DialogType.PROJECT -> DialogContainer.swapDialog(DialogContainer)
+                DialogType.SCENE -> Salient.projectManager.currentProject.scenes.forEach {
+                    Log.info(it.data.toString())
+                }
+                DialogType.CONFIG -> DialogContainer.swapDialog(DialogContainer)
+                DialogType.ASSETS -> Salient.projectManager.assetManager.registry.assets.forEach {
+                    Log.info(it.meta.properties.toString())
+                }
+                DialogType.LOG -> DialogContainer.swapDialog(DialogContainer)
+            }
+
         }
     }
     @OptIn(Reflection::class)

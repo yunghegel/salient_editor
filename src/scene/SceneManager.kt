@@ -4,27 +4,42 @@ import app.Salient
 import events.scene.SceneCreatedEvent
 import events.scene.SceneLoadedEvent
 import events.scene.SceneSelectionEvent
+import io.FileService
 import io.Serializer
 import project.Project
-import scene.context.env.EditorEnvironment
+import sys.Log
 import util.CameraUtils
 
 class SceneManager(project: Project) : SceneLoadedEvent.Listener, SceneCreatedEvent.Listener, SceneSelectionEvent.Listener {
 
     private var proj = project
-    private lateinit var currentScene: Scene
+    lateinit var currentScene: Scene
 
     init {
         Salient.eventBus.register(this)
     }
 
-    fun setScene(scene: Scene){
+    fun initalize() {
+        FileService.listScenes(proj.name).forEach {
+            if (proj.scenes.find { scene -> scene.name == it.substringBefore('.') } == null) {
+                proj.scenes.add(Serializer.deserializeScene(proj.name, it.substringBefore('.'), proj))
+            }
+        }
+        if(proj.scenes.isEmpty()) {
+            Log.info("No scenes found, creating default scene")
+            initDefaultScene()
+        } else {
+            loadScene(proj.scenes[0])
+            selectScene(proj.scenes[0])
+        }
+    }
+    fun selectScene(scene: Scene){
         currentScene = scene
         if(!proj.scenes.contains(scene)){
-            proj.addScene(scene)
-            proj.save()
-            proj.setScene(scene)
+            addScene(scene)
+            setScene(scene)
         }
+        Salient.postEvent(SceneSelectionEvent(scene))
     }
 
     fun closeScene(){
@@ -36,14 +51,33 @@ class SceneManager(project: Project) : SceneLoadedEvent.Listener, SceneCreatedEv
         Serializer.serializeScene(currentScene)
     }
 
+    fun loadScene(scene: Scene){
+        currentScene = scene
+        Salient.postEvent(SceneLoadedEvent(scene))
+
+    }
+    fun addScene(scene: Scene) {
+
+        proj.scenes.add(scene)
+    }
+    fun setScene(scene: Scene){
+        proj.currentScene = scene
+    }
+
+    fun removeScene(scene: Scene){
+        proj.scenes.remove(scene)
+    }
+
+
     fun newScene(name:String,makeCurrent: Boolean?) : Scene {
         var scene = Scene(name, proj)
-        scene.env = EditorEnvironment()
-        scene.camera= Salient.camera
-        proj.addScene(scene)
+        scene.sceneContext = SceneContext()
+        scene.perspectiveCamera= Salient.camera
+
         Serializer.serializeScene(scene)
         if(makeCurrent == true){
-            setScene(scene)
+
+            selectScene(scene)
         }
         Salient.postEvent(SceneCreatedEvent(scene))
         return scene
@@ -52,8 +86,11 @@ class SceneManager(project: Project) : SceneLoadedEvent.Listener, SceneCreatedEv
 
 
 
-    fun initDefaultScene(): Scene {
-       return newScene("New Scene",true)
+    fun initDefaultScene() : Scene {
+       currentScene =  newScene("New Scene",true)
+        addScene(currentScene)
+        setScene(currentScene)
+        return currentScene
     }
 
     override fun onSceneLoaded(event: SceneLoadedEvent) {
@@ -63,18 +100,13 @@ class SceneManager(project: Project) : SceneLoadedEvent.Listener, SceneCreatedEv
 
     override fun onSceneCreated(event: SceneCreatedEvent) {
         Serializer.serializeScene(event.scene)
-        proj.addScene(event.scene)
-        proj.save()
     }
 
     override fun onSceneSelection(event: SceneSelectionEvent) {
-        currentScene.save()
 
-        var lookAt = CameraUtils.cameraRayXZPlaneIntersection(event.scene.camera.position, event.scene.camera.direction)
+        var lookAt = CameraUtils.cameraRayXZPlaneIntersection(event.scene.perspectiveCamera.position, event.scene.perspectiveCamera.direction)
 //        Salient.cameraController.perspectiveCameraController.config.target.(lookAt)
 
-        Salient.ui.viewportWidget.setRenderer(event.scene)
-        setScene(event.scene)
     }
 
 

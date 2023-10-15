@@ -5,10 +5,12 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
 import com.kotcrab.vis.ui.util.dialog.OptionDialogListener;
 import com.kotcrab.vis.ui.widget.Separator;
 import org.jetbrains.annotations.NotNull;
+
 import org.yunghegel.gdx.ui.widgets.EditableTextButton;
 import org.yunghegel.gdx.ui.widgets.STable;
 import org.yunghegel.gdx.ui.widgets.STextButton;
@@ -33,18 +35,17 @@ public class SceneTab extends STable implements SceneClosedEvent.Listener, Scene
         this.scene = scene;
         tab = new STable();
         closeTab = new STable();
-        tabButton = new EditableTextButton(scene.name, "default-medium");
+        tabButton = new EditableTextButton(scene.getName(), "default-small");
         tabButton.label.setCallback(s -> {
-            scene.name = s;
-            scene.save();
-
+            scene.setName(s);
         });
+        align(Align.bottom);
         closeButton = new STextButton(" x ");
-        tab.add(tabButton);
+        tab.add(tabButton).height(20).bottom();
         Separator separator = new Separator();
-        add(tab).growY();
+        add(tab).bottom()   ;
 
-        add(closeButton);
+        add(closeButton).height(20).bottom().padRight(5);
 
         createDefaultListeners();
 
@@ -59,7 +60,7 @@ public class SceneTab extends STable implements SceneClosedEvent.Listener, Scene
 
                     @Override
                     public void yes() {
-                        Salient.INSTANCE.getProjectManager().currentProject.removeScene(scene);
+                        Salient.INSTANCE.getProjectManager().getSceneManager().removeScene(scene);
                         Salient.INSTANCE.getProjectManager().save();
                     }
 

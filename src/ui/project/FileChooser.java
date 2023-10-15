@@ -147,6 +147,7 @@ public class FileChooser extends TreeFileChooser {
             else if (file.name().equals("assets")) edit.label.setColor(Color.SKY);
             else if (file.name().equals("scenes")) edit.label.setColor(Color.FOREST);
             node.setActor(edit);
+            node.setExpanded(true);
             node.getActor().addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {

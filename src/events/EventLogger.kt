@@ -45,24 +45,29 @@ open class EventLogger  {
     }
 
 
-    data class  EventLog(val event: Event, val state: State) {
+    data class  EventLog(val event: Event, val state: State,var desc: String = "") {
 
          var postTime: Instant = Instant.now()
          var handleTime: Instant = Instant.now()
-        lateinit var desc: String
+
 
         init {
-            desc = when(state) {
-                State.CREATED -> created()
-                State.POSTED -> posted()
+            var msg = when(state) {
+                State.CREATED -> "[${event::class.java.simpleName} ${state.name}]\n${event.record}}"
+                State.POSTED -> "[${event::class.java.simpleName} ${state.name}]\nMSG: ${event.msg}"
                 State.HANDLED -> handled()
             }
+            msg+="DESC: ${event.desc}"
+
         }
 
         override fun toString(): String {
 
 
-            return desc
+            return when(state) {
+                State.CREATED -> "[${event::class.java.simpleName} ${state.name}]\n${event.record}}"
+                State.POSTED -> "[${event::class.java.simpleName} ${state.name}]\nMSG: ${event.msg}"
+                State.HANDLED -> handled()}
         }
 
         fun  time() : String {
@@ -70,26 +75,23 @@ open class EventLogger  {
         }
 
         fun head():String {
-            return "[EVENT: ${event::class.java.simpleName} ${state.name}] ${time()} \n"
+            return "[${event::class.java.simpleName} ${state.name}]"
         }
 
         fun stack(strBuilder:StringBuilder?) :StringBuilder {
 
             val builder = StringBuilder().append("\n")
-            val startIdx = 1
+            val startIdx = 10
 
-            StackWalker.getInstance().walk { s: Stream<StackWalker.StackFrame?> ->
-                s.limit(
-                    10
+          var list =  StackWalker.getInstance().walk { s: Stream<StackWalker.StackFrame?> ->
+                s.skip(
+                    6
                 )
-                    .collect(Collectors.toList<Any?>()).forEach(Consumer { obj: Any? ->
-                        builder.appendLine(obj.toString())
-                    })
+                    .collect(Collectors.toList()).takeWhile { it?.className!!.contains("Editor") }
+
+
             }
             val endIdx  = builder.length - 1
-
-            builder.insert(startIdx ,("STACK TRACE: \n"))
-            builder.insert(endIdx, "\nEND STACK TRACE \n")
 
             return if(strBuilder != null) {
                 strBuilder.appendLine(builder.toString())
@@ -101,17 +103,15 @@ open class EventLogger  {
         }
 
         fun created(): String {
-            val record = StringBuilder().append("\n")
-
-
-            record.append(head()).append("\n")
-
-            stack(record).append("\n")
+            val record = StringBuilder()
 
 
 
 
-            return record.toString()
+
+
+
+            return head()
         }
 
         fun ansiToUnicode(str:String) : String {
@@ -131,13 +131,13 @@ open class EventLogger  {
         fun posted():String {
             postTime = Instant.now()
 
-            val record = ConsoleUtils.getCallingMethodName()
-            return "[EVENT: ${event::class.java.simpleName}  POSTED] ${time()} \n SOURCE: $record \n"
+            val record = event.record
+            return "[${event::class.java.simpleName} POSTED] from SOURCE: $record\n"
         }
 
         fun handled():String {
             handleTime = Instant.now()
-            return "[EVENT: ${event::class.java.simpleName} HANDLED] ${time()} \n"
+            return "[${event::class.java.simpleName} HANDLED] ${time()}"
         }
 
     }
@@ -179,7 +179,6 @@ open class DefaultLogger:EventLogger(), Event.Listener, ShutdownEvent.Listener {
         checkLineCount()
         val log = EventLogger.EventLog(event , state)
         println(log)
-        stack.push(log)
 
         logFileWriter.write((log.toString()))
         logFileWriter.flush()

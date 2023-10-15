@@ -1,10 +1,10 @@
 package events.proj
 
-import events.Event
+import events.ProjectEvent
 import events.Subscribe
 import project.Project
 
-class ProjectLoadedEvent(val project: Project) :Event() {
+class ProjectLoadedEvent(project: Project) :ProjectEvent(project) {
 
 
     interface Listener {
