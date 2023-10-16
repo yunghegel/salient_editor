@@ -22,7 +22,7 @@ public class Launcher {
         config.useVsync(false);
         config.setResizable(true);
         config.setWindowedMode(1920, 1080);
-        config.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL30, 4, 3);
+        config.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL32, 4, 3);
         config.setAutoIconify(true);
 
         config.setWindowIcon("icon.png");

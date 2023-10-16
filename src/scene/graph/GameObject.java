@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Array;
 import org.jetbrains.annotations.NotNull;
+import org.yunghegel.gdx.gizmo.core.transform.TransformTarget;
 import org.yunghegel.gdx.scenegraph.component.Component;
 import org.yunghegel.gdx.scenegraph.scene3d.SimpleNode;
 import org.yunghegel.gdx.scenegraph.scene3d.Spatial;
@@ -15,10 +16,11 @@ import util.Flags;
 import util.RenderFlags;
 
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-public class GameObject extends Spatial<GameObject> implements Iterable<GameObject> {
+public class GameObject extends Spatial<GameObject> implements Iterable<GameObject>, TransformTarget {
 
     public static final String DEFAULT_NAME = "GameObjectBase";
 
@@ -37,16 +39,21 @@ public class GameObject extends Spatial<GameObject> implements Iterable<GameObje
     public Flags flags = new Flags();
     public RenderFlags renderFlags = new RenderFlags();
 
+
     public boolean visible = true;
 
     public GameObject(SceneGraph sceneGraph, String name, int id, Matrix4 transform) {
         super(id);
+        this.name = (name == null) ? DEFAULT_NAME : name;
+        this.active = true;
+        this.id = id;
         this.scene=sceneGraph.getCurrScene();
         this.sceneGraph = sceneGraph;
         this.depthBatch = sceneGraph.getCurrScene().getDepthBatch();
         this.batch = sceneGraph.getCurrScene().getModelBatch();
         this.camera = sceneGraph.getCurrScene().getPerspectiveCamera();
         this.renderer = sceneGraph.getCurrScene().getSceneRenderer();
+        SceneGraph.Companion.setCount(SceneGraph.Companion.getCount()+1);
     }
 
     public void render(float delta){
@@ -74,7 +81,15 @@ public class GameObject extends Spatial<GameObject> implements Iterable<GameObje
                 child.update(delta);
             }
         }
-    }
+
+        if(Objects.equals(scene.getSelectedGameObject(), this)) {
+
+                renderFlags.set(RenderFlags.SELECTED);}
+             else {
+                renderFlags.clear(RenderFlags.SELECTED);
+            }
+        }
+
 
 
     public GameObject findChildrenByName(String name) {
@@ -165,5 +180,10 @@ public class GameObject extends Spatial<GameObject> implements Iterable<GameObje
     @Override
     public Spliterator<GameObject> spliterator() {
         return Iterable.super.spliterator();
+    }
+
+    @Override
+    public void apply() {
+        getTransform();
     }
 }

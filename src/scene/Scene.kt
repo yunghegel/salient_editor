@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.crashinvaders.vfx.VfxManager
 import com.crashinvaders.vfx.effects.FxaaEffect
+import events.scene.GameObjectDeselectedEvent
+import events.scene.GameObjectSelectedEvent
 import input.EditorCamera
 import input.InputManager
 import io.Serializer
@@ -17,8 +19,10 @@ import ktx.collections.GdxArray
 import org.yunghegel.gdx.scenegraph.scene3d.BaseScene
 import org.yunghegel.gdx.ui.widgets.viewport.ViewportWidget
 import project.Project
+import scene.graph.GameObject
 import scene.graph.SceneGraph
 import scene.systems.SceneIterator
+import tools.ToolManager
 
 /**
  * Default subclass of the [BaseScene] class - this is the main scene class used by the editor.
@@ -28,7 +32,7 @@ import scene.systems.SceneIterator
  *
  * Only required parameter is [project], a scene must be associated with a project.
  */
-class Scene( var name: String = "New Scene", val project: Project, var uid : String = "-1") : BaseScene(name,project.sceneFolder.path()+'/'+name.plus(".scene")), ViewportWidget.Renderer {
+class Scene( var name: String = "New Scene", val project: Project, var uid : String = "-1") : BaseScene(name,project.sceneFolder.path()+'/'+name.plus(".scene")), ViewportWidget.Renderer,GameObjectSelectedEvent.Listener,GameObjectDeselectedEvent.Listener {
 
 
 
@@ -48,6 +52,9 @@ class Scene( var name: String = "New Scene", val project: Project, var uid : Str
 
     var sceneIterators: GdxArray<SceneIterator> = GdxArray()
 
+    var selectedGameObjects: GdxArray<GameObject> = GdxArray()
+    var selectedGameObject: GameObject? = null
+
     lateinit var effectsManager : VfxManager
 
 
@@ -66,6 +73,12 @@ class Scene( var name: String = "New Scene", val project: Project, var uid : Str
 
         effectsManager= VfxManager(Pixmap.Format.RGBA8888)
         effectsManager.addEffect(FxaaEffect())
+
+        Salient.registerListener(this)
+    }
+
+    fun hasSelection(): Boolean {
+        return selectedGameObjects.size > 0
     }
 
 
@@ -88,6 +101,7 @@ class Scene( var name: String = "New Scene", val project: Project, var uid : Str
         sceneRenderer.renderSceneContext(delta,sceneContext)
         sceneRenderer.renderSceneGraph(delta,sceneGraph)
         controller.perspectiveCameraController.render()
+        ToolManager.renderTool()
     }
 
     override fun resize(width: Int, height: Int) {
@@ -113,6 +127,18 @@ class Scene( var name: String = "New Scene", val project: Project, var uid : Str
         override fun render(delta: Float) {
             scene.render(delta)
         }
+    }
+
+    override fun onGameObjectDeselected(event: GameObjectDeselectedEvent) {
+        selectedGameObjects.removeValue(event.gameObject,true)
+    }
+
+    override fun onGameObjectSelected(event: GameObjectSelectedEvent) {
+        if(!event.inclusive) {
+            selectedGameObjects.clear()
+        }
+        selectedGameObjects.add(event.gameObject)
+        selectedGameObject = event.gameObject
     }
 
 }

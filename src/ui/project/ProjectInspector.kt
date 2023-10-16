@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
-import com.badlogic.gdx.scenes.scene2d.ui.List
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.ui.Tree
 import com.badlogic.gdx.scenes.scene2d.ui.Window
@@ -29,9 +28,6 @@ import org.yunghegel.gdx.ui.UI
 import org.yunghegel.gdx.ui.widgets.EditableTextButton
 import org.yunghegel.gdx.ui.widgets.STable
 import sys.Log
-import ui.project.dialogs.DialogType
-import ui.project.dialogs.ProjectDialog
-import ui.project.dialogs.SceneDialog
 import java.io.File
 import java.io.FileFilter
 import java.util.function.Supplier
@@ -196,10 +192,10 @@ if(!projLoaded){
                     Color.GOLD else if (file.name() == "assets") label.label.label.color =
                     Color.SKY else if (file.name() == "scenes") label.label.label.color =
                     Color.FOREST
-                label.label.label.setStyle(skin.get("default-medium", LabelStyle::class.java))
+                label.label.label.setStyle(skin.get("default", LabelStyle::class.java))
             } else {
                 label.color = Color.WHITE
-                label.label.label.setStyle(skin.get("default-small", LabelStyle::class.java))
+                label.label.label.setStyle(skin.get("default", LabelStyle::class.java))
             }
             label.label.label
         }

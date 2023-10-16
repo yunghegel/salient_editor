@@ -16,6 +16,7 @@ open class Flags(var flags: Long= VISIBLE or SELECTABLE, val amount: Int = 8) : 
         const val SELECTED = 1L shl 5
         const val LOCKED = 1L shl 6
         const val SELECTABLE = 1L shl 7
+        const val INTERACTING = 1L shl 8
     }
 
 
@@ -85,16 +86,33 @@ open class Flags(var flags: Long= VISIBLE or SELECTABLE, val amount: Int = 8) : 
 
 
     override fun toString(): String {
-        if (flags == 0L) return "0"
-        val sb = StringBuilder(64)
-        var i = 0
-        while (i < 64) {
-            val flag = 1L shl i
-            if (has(flag)) {
-                if (sb.isNotEmpty()) sb.append(", ")
-                sb.append(flag)
-            }
-            i++
+        val sb = StringBuilder()
+        if(has(VISIBLE)){
+            sb.append("Visible/")
+        }
+        if(has(HIDDEN)){
+            sb.append("Hidden/")
+        }
+        if(has(HOVER)){
+            sb.append("Hover/")
+        }
+        if(has(PRESSED)){
+            sb.append("Pressed/")
+        }
+        if(has(FOCUSED)){
+            sb.append("Focused/")
+        }
+        if(has(SELECTED)){
+            sb.append("Selected/")
+        }
+        if(has(LOCKED)){
+            sb.append("Locked/")
+        }
+        if(has(SELECTABLE)){
+            sb.append("Selectable/")
+        }
+        if(has(INTERACTING)){
+            sb.append("Interacting/")
         }
         return sb.toString()
     }

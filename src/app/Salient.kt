@@ -24,6 +24,7 @@ import ktx.scene2d.Scene2DSkin
 import org.yunghegel.gdx.gizmo.core.utility.CompassGizmo
 import project.Project
 import project.ProjectManager
+import scene.graph.GameObject
 import sys.Natives
 import sys.WindowSubscriber
 import ui.Gui
@@ -151,7 +152,9 @@ init {
 
     fun unregisterListener(listener: Any) = eventBus.unregister(listener)
 
-
+    fun getSelectedGameObject() : GameObject? {
+        return projectManager.sceneManager.currentScene.selectedGameObject
+    }
 
 
 }

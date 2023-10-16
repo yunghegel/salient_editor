@@ -67,7 +67,7 @@ object AssetImporer {
 class ModelImporter(val model: Model, val asset: ModelAsset, val sceneGraph: SceneGraph, assetManager: AssetManager) {
 
     fun buildGo() : GameObject {
-        val go = GameObject(sceneGraph, asset.meta.properties.name, asset.meta.properties.hashCode(), Matrix4())
+        val go = GameObject(sceneGraph, asset.meta.properties.name, SceneGraph.count, Matrix4())
 
         val modelComponent = ModelComponent(model,go)
         val materialComponents = model.materials.map { MaterialComponent(it,go) }
@@ -82,11 +82,38 @@ class ModelImporter(val model: Model, val asset: ModelAsset, val sceneGraph: Sce
         val modelI = ModelInstance(model)
         val transformC = TransformComponent(modelI.transform,go)
         val renderableC = RenderableComponent(modelI,go)
-
+        for (material in modelI.materials) {
+            val materialComponent = MaterialComponent(material,go)
+            go.addComponent(materialComponent)
+        }
+        for(mesh in modelI.model.meshes) {
+            val meshComponent = MeshComponent(mesh,go)
+            go.addComponent(meshComponent)
+        }
         go.addComponents(modelComponent, transformC, renderableC)
 //        go.addComponents(*materialComponents.toTypedArray())
 //        go.addComponents(*meshComponents.toTypedArray())
 //        go.addComponents(*textureComponents.items)
+        return go
+    }
+
+}
+
+class PrimitiveImporter(val primitive: PrimitiveModel, val sceneGraph: SceneGraph) {
+
+    fun buildGo() : GameObject {
+        val go = GameObject(sceneGraph, primitive.primitive.name, SceneGraph.count, Matrix4())
+
+        val modelComponent = ModelComponent(primitive.getModel(),go)
+        val transformC = TransformComponent(primitive.getRenderable().transform,go)
+        val renderableC = RenderableComponent(primitive.getRenderable(),go)
+        for (material in primitive.getRenderable().materials) {
+            val materialComponent = MaterialComponent(material,go)
+            go.addComponent(materialComponent)
+        }
+
+
+        go.addComponents(modelComponent, transformC, renderableC)
         return go
     }
 

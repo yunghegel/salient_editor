@@ -35,10 +35,12 @@ public class SMenuBar extends MenuBar implements ProjectLoadedEvent.Listener, Pr
     SMenuItem newProject, openProject, saveProject, recentProjects, exit;
     public Table projectInfo;
     public SMenuBar() {
-        super("no-bg");
+        super("default");
         init();
         createWindowControls();
         createFileMenu();
+
+
 
         Salient.INSTANCE.registerListener(this);
     }
@@ -88,6 +90,10 @@ public class SMenuBar extends MenuBar implements ProjectLoadedEvent.Listener, Pr
         projectInfo.align(Align.left);
 
         itemsCell = getTable().getCell(projectInfo);
+
+        getTable().getCells().forEach(cell -> {
+            cell.pad(0f,5f,0f,5f);
+        });
 
     }
 

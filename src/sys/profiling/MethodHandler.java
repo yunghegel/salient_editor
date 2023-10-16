@@ -7,7 +7,7 @@ import sys.Log;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
-public class MethodHandler implements javassist.util.proxy.MethodHandler {
+public class MethodHandler {
 
     public static class Metric {
         public WindowedMean mean;
@@ -70,12 +70,5 @@ public class MethodHandler implements javassist.util.proxy.MethodHandler {
     }
 
 
-    @Override
-    public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
-        start(thisMethod.getName(),self.getClass(),thisMethod);
-        var ret = proceed.invoke(self, args);
-        end(thisMethod.getName(),self.getClass(),thisMethod);
-        Log.info(getMetric(thisMethod.getName(),self.getClass(),thisMethod).toString());
-        return ret;
-    }
+
 }

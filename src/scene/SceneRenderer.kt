@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.environment.PointLight
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider
 import com.badlogic.gdx.utils.viewport.ScreenViewport
+import graphics.OutlineRenderer
 import input.EditorCamera
 import input.InputManager
 import net.mgsx.gltf.scene3d.scene.Scene
@@ -17,6 +18,7 @@ import scene.graph.SceneGraph
 
 class SceneRenderer(val numBones:Int = 64,val numSpotLights:Int =8,val numPointLights:Int=8,val numDirLights:Int=1) : SceneManager(){
 
+    val outlineShader:OutlineRenderer
 
 
 init {
@@ -35,6 +37,8 @@ init {
 
         setShaderProvider(PBRShaderProvider(config))
         setDepthShaderProvider(DepthShaderProvider(depthConfig))
+
+        outlineShader = OutlineRenderer()
     }
 
     val perspectiveCamera : PerspectiveCamera = Salient.inject()
@@ -58,11 +62,15 @@ init {
 
      fun renderSceneGraph(delta: Float, sceneGraph: SceneGraph?) {
 
-         sceneGraph?.root?.children?.forEach{ it.render(delta) }
+         sceneGraph?.rootGameObj?.children?.forEach{ it.render(delta) }
+
     }
 
     fun render(delta: Float,sceneGraph: SceneGraph){
         sceneGraph.render(delta)
+
+        outlineShader.render(sceneGraph)
+
     }
 
     fun configureFromScene(scene: scene.Scene): SceneRenderer {

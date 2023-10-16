@@ -60,8 +60,10 @@ object Format {
         return wrpAnsi(this, color)
     }
 
-    fun Float.trimDecimals(decimals:Int) : Float {
-        return String.format("%.${decimals}f", this).toFloat()
+
+
+    fun Float.trimDecimals(places: Int) : Float {
+        return String.format("%.${places}f", this).toFloat()
     }
 
     fun Float.ensureDecimals(decimals:Int) : String {

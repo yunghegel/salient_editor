@@ -32,6 +32,9 @@ class SceneHierarchy(var scene: Scene) : SceneTree(scene.sceneGraph) , GameObjec
 
     override fun onGameObjectDeselected(event: GameObjectDeselectedEvent) {
         deselect(event.gameObject)
+        if(scene.selectedGameObjects.isEmpty()) {
+            tree.selection.clear()
+        }
     }
 
     override fun onGameObjectRemoved(event: GameObjectRemovedEvent) {

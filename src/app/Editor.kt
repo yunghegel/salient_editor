@@ -9,7 +9,9 @@ import com.badlogic.gdx.graphics.Pixmap
 import com.crashinvaders.vfx.VfxManager
 import com.crashinvaders.vfx.effects.FxaaEffect
 import ktx.async.KtxAsync
+import org.yunghegel.gdx.ui.UI
 import project.ProjectManager
+import tools.ToolManager
 
 
 class Editor : ApplicationAdapter() {
@@ -34,11 +36,13 @@ class Editor : ApplicationAdapter() {
         Gdx.gl.glClearColor(0.1f,0.1f,0.1f,0f)
         projectManager.sceneManager.currentScene?.update(Gdx.graphics.deltaTime)
         AssetService.processQueue(Salient.projectManager.assetManager)
-
+        ToolManager.processActiveTool()
         Salient.ui.render(Gdx.graphics.deltaTime)
 
 
-
+        if(Salient.getSelectedGameObject()!=null){
+            UI.drawText("Flags: ${Salient.getSelectedGameObject()!!.flags}", 100f, 100f)
+        }
 
     }
 

@@ -123,10 +123,10 @@ public class FileChooser extends TreeFileChooser {
 
 
 
-            label.label.label.setStyle(getSkin().get("default-medium", Label.LabelStyle.class));
+            label.label.label.setStyle(getSkin().get("default", Label.LabelStyle.class));
         }else{
             label.setColor(Color.WHITE);
-            label.label.label.setStyle(getSkin().get("default-medium", Label.LabelStyle.class));
+            label.label.label.setStyle(getSkin().get("default", Label.LabelStyle.class));
         }
         return label.label.label;
     };
@@ -142,7 +142,7 @@ public class FileChooser extends TreeFileChooser {
 
         FileHandle file = (FileHandle) node.getValue();
         if(file!=null){
-            var edit = new EditableLabel(file.name()+"/","default-medium");
+            var edit = new EditableLabel(file.name()+"/","default");
             if(file.name().equals("projects")) edit.label.setColor(Color.GOLD);
             else if (file.name().equals("assets")) edit.label.setColor(Color.SKY);
             else if (file.name().equals("scenes")) edit.label.setColor(Color.FOREST);

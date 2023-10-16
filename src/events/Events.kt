@@ -82,6 +82,16 @@ inline fun <T:Any> T.gameObjectRemoved(crossinline listener: T.(GameObject) -> U
     return onEvent
 }
 
+inline fun <T:Any> T.gameObjectModified(crossinline listener: T.(GameObject) -> Unit): GameObjectModifiedEvent.Listener {
+    val onEvent = object : GameObjectModifiedEvent.Listener {
+        override fun gameObjectModified(event: GameObjectModifiedEvent) {
+            listener(event.gameObject)
+        }
+    }
+    Sal.registerListener(onEvent)
+    return onEvent
+}
+
 inline fun <T:Any> T.gameObjectTransformed(crossinline listener: T.(GameObject) -> Unit): GameObjectTransformedEvent.Listener {
     val onEvent = object : GameObjectTransformedEvent.Listener {
         override fun onGameObjectTransformed(event: GameObjectTransformedEvent) = listener(event.gameObject)
